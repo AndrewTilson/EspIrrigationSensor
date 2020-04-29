@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 
 //Store wifi credentials.
-const String ssid = "Tilson";
-const String password = "TilsonRes";
+const String ssid = "*";
+const String password = "*";
 
 //Set what min value = 0% moisture and max = 100% moisture
 const int AirValue = 849;   //you need to replace this value with Value_1
