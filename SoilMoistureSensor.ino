@@ -16,14 +16,17 @@ int soilmoisturepercent = 0;
 const String locationID="1";
 const String sensorID="1";
 
+//Set the access pin for the moisture sensor.
 const int SensorPin = A0;
 
 //Set API endpoint
-const String apiUrl = "http://192.168.1.221:5000/api/Sensor";
+const String apiUrl = "http://192.168.1.205:5000/api/Sensor";
+
+HTTPClient http;
 
 //One time setup required for initializing the ESP
 void setup() {
-  Serial.begin(115200); // open serial port, set the baud rate to 9600 bps
+  Serial.begin(115200); // open serial port, set the baud rate to 115200 bps
 
   WiFi.begin(ssid, password);
   
@@ -32,9 +35,7 @@ void setup() {
     delay(500);
     Serial.println("Connecting...");
   }
-}
 
-void loop() {
   //Only bother doing any work if the wifi is connected.
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -57,16 +58,16 @@ void loop() {
     }
 
     //Section to Send sensor reading
-    HTTPClient http; //Object of class HTTPClient
     http.begin(apiUrl);
+    http.setTimeout(10000);
     http.addHeader("Content-Type", "text/json");
     int httpCode = http.POST("{\"LocationID\":" + locationID + ",\"SensorID\":" + sensorID + ",\"Moisture\":" + soilmoisturepercent + "}");
+    //int httpCode = http.GET();
     String payload = http.getString();
-    Serial.println("Posted:{\"LocationID\":" + locationID + ",\"SensorID\":" + sensorID + ",\"Moisture\":" + soilmoisturepercent + "}");
+    //Serial.println("Posted:{\"LocationID\":" + locationID + ",\"SensorID\":" + sensorID + ",\"Moisture\":" + soilmoisturepercent + "}");
     Serial.println("Response Code:" + (String)httpCode);
     Serial.println("Received:" + payload);
-    http.end(); //Close connection
-    
+    http.end();
   }
   else
   {
@@ -74,6 +75,14 @@ void loop() {
   }
 
   //wait time till we attempt to get reading again.
-  delay(10000);
+  //delay(120000);
   Serial.println();
+
+  // Deep sleep mode for 30 seconds, the ESP8266 wakes up by itself when GPIO 16 (D0 in NodeMCU board) is connected to the RESET pin
+  Serial.println("Completed, but I'm going into deep sleep mode for 30 seconds");
+  ESP.deepSleep(30e6); 
+}
+
+void loop() {
+  
 }
